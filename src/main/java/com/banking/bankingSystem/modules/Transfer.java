@@ -14,18 +14,15 @@ public class Transfer {
     private Long id;
     private BigDecimal amount;
     private Long sendingId;
-    private Long recevingId;
+    private Long receivingId;
     private String recipientName;
 
-
-    public Transfer() {
-    }
-
-    public Transfer(BigDecimal amount, Long sendingId, Long recevingId, String recipientName) {
-        this.amount = amount;
-        this.sendingId = sendingId;
-        this.recevingId = recevingId;
-        this.recipientName = recipientName;
+    public Transfer() {    }
+    public Transfer(BigDecimal amount, Long sendingId, Long receivingId, String recipientName) {
+        setAmount(amount);
+        setSendingId(sendingId);
+        setReceivingId(receivingId);
+        setRecipientName(recipientName);
     }
 
     public Long getId() {
@@ -52,12 +49,12 @@ public class Transfer {
         this.sendingId = sendingId;
     }
 
-    public Long getRecevingId() {
-        return recevingId;
+    public Long getReceivingId() {
+        return receivingId;
     }
 
-    public void setRecevingId(Long recevingId) {
-        this.recevingId = recevingId;
+    public void setReceivingId(Long receivingId) {
+        this.receivingId = receivingId;
     }
 
     public String getRecipientName() {

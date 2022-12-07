@@ -21,13 +21,13 @@ public class AccountHolderController {
     } */
 
     @GetMapping("/account-balance")
-    public BigDecimal getBalance2(@RequestParam Long accountId, @AuthenticationPrincipal CustomUserDetails user){
-        return accountHolderService.getBalance2(accountId, user.getUsername());
+    public BigDecimal getBalance(@RequestParam Long accountId, @AuthenticationPrincipal CustomUserDetails user){
+        return accountHolderService.getBalance(accountId, user.getUsername());
     }
 
     @PostMapping("/transfer")
     public BigDecimal transfer(@RequestBody Transfer transfer, @AuthenticationPrincipal CustomUserDetails user){
-        return accountHolderService.transfer2(transfer, user.getUsername());
+        return accountHolderService.transfer(transfer, user.getUsername());
     }
 
 }
