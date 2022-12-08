@@ -1,13 +1,17 @@
 package com.banking.bankingSystem.modules.accounts;
 import com.banking.bankingSystem.enums.AccountStatus;
 import com.banking.bankingSystem.modules.users.User;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-public abstract class Account {
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,6 +21,8 @@ public abstract class Account {
     private User primaryOwner;
     @ManyToOne
     private User secondaryOwner;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
     private AccountStatus status = AccountStatus.ACTIVE;
 
@@ -83,5 +89,18 @@ public abstract class Account {
 
     public void setStatus(AccountStatus status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", balance=" + balance +
+                ", secretKey='" + secretKey + '\'' +
+                ", primaryOwner=" + primaryOwner +
+                ", secondaryOwner=" + secondaryOwner +
+                ", creationDate=" + creationDate +
+                ", status=" + status +
+                '}';
     }
 }

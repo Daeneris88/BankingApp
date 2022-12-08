@@ -29,10 +29,11 @@ public class SecurityConfiguration {
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/create-thirdParty").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/create-creditCard/{userId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/create-savings/{userId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/create-checking/{userId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/create-creditCard").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/create-savings").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/create-checking").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/balance/{userId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/account/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/account-balance").hasRole("ACCOUNT_HOLDER")
                 .requestMatchers(HttpMethod.POST, "/transfer").hasRole("ACCOUNT_HOLDER")
                 .anyRequest().permitAll();

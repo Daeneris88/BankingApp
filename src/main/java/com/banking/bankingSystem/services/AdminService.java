@@ -1,4 +1,5 @@
 package com.banking.bankingSystem.services;
+import com.banking.bankingSystem.modules.DTO.AccountDTO;
 import com.banking.bankingSystem.modules.accounts.*;
 import com.banking.bankingSystem.modules.users.*;
 import com.banking.bankingSystem.repositories.AccountHolderRepository;
@@ -63,49 +64,36 @@ public class AdminService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
 
-    public Account createChecking(Account account, Long id) {
-        if(accountHolderRepository.findById(id).isPresent()) {
-            AccountHolder user = accountHolderRepository.findById(id).get();
+    public Account createChecking(AccountDTO accountDTO) {
+        if(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
+            AccountHolder user = accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get();
             Period intervalPeriod = Period.between(user.getDateOfBirth(), LocalDate.now());
-
             if (intervalPeriod.getYears() < 24) {
-                StudentChecking studentChecking = new StudentChecking(account.getBalance(), account.getSecretKey(), user);
-                user.getPrimaryAccountList().add(studentChecking);
-                accountHolderRepository.save(user);
-                accountRepository.save(studentChecking);
-                return studentChecking;
+                return accountRepository.save( new StudentChecking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
             } else {
-                Checking checking = new Checking(account.getBalance(), account.getSecretKey(), user);
-                user.getPrimaryAccountList().add(checking);
-                accountHolderRepository.save(user);
-                accountRepository.save(checking);
-                return checking;
+                return accountRepository.save(new Checking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
             }
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
 
-    public Account createCreditCard(Account account, Long id, Optional<BigDecimal> interestRate, Optional<BigDecimal> creditLimit) {
-        if(accountHolderRepository.findById(id).isPresent()) {
-            AccountHolder user = accountHolderRepository.findById(id).get();
-            CreditCard creditCard = new CreditCard(account.getBalance(), user);
-            user.getPrimaryAccountList().add(creditCard);
-            accountHolderRepository.save(user);
-            accountRepository.save(creditCard);
-            return creditCard;
+    public Account createCreditCard(AccountDTO account) {
+        if(accountHolderRepository.findById(account.getPrimaryOwnerId()).isPresent()) {
+            AccountHolder user = accountHolderRepository.findById(account.getPrimaryOwnerId()).get();
+            return accountRepository.save( new CreditCard(account.getBalance(), user));
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
 
-    public Account createSavings(Account account, Long id) {
-        if(accountHolderRepository.findById(id).isPresent()) {
-            AccountHolder user = accountHolderRepository.findById(id).get();
-            Savings savings = new Savings(account.getBalance(), account.getSecretKey(), user);
-            user.getPrimaryAccountList().add(savings);
-            accountHolderRepository.save(user);
-            accountRepository.save(savings);
-            return savings;
+    public Account createSavings(AccountDTO account) {
+        if(accountHolderRepository.findById(account.getPrimaryOwnerId()).isPresent()) {
+            AccountHolder user = accountHolderRepository.findById(account.getPrimaryOwnerId()).get();
+            return accountRepository.save( new Savings(account.getBalance(), account.getSecretKey(), user));
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
+    }
+
+    public void deleteAccount(Long userId, Long accountId) {
+
     }
 }

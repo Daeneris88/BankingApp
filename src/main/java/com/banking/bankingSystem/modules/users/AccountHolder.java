@@ -1,6 +1,10 @@
 package com.banking.bankingSystem.modules.users;
 import com.banking.bankingSystem.modules.accounts.Account;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -12,12 +16,14 @@ public class AccountHolder extends User {
     @Embedded
     private Address primaryAddress;
     private String mailAddress;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate dateOfBirth;
-    @OneToMany (mappedBy = "primaryOwner")
+    @OneToMany (mappedBy = "primaryOwner", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Account> primaryAccountList = new ArrayList<>();
 
-    @OneToMany (mappedBy = "secondaryOwner")
+    @OneToMany (mappedBy = "secondaryOwner", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Account> secondaryAccountList = new ArrayList<>();
 
