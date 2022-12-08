@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -28,8 +27,7 @@ public class AdminService {
     @Autowired
     AccountRepository accountRepository;
 
-    public User createThirdParty(ThirdParty user) {
-        Role role = roleRepository.save(new Role("THIRD_PARTY", user));
+    public ThirdParty createThirdParty(ThirdParty user) {
         return thirdPartyRepository.save(user);
     }
 
@@ -94,6 +92,14 @@ public class AdminService {
     }
 
     public void deleteAccount(Long userId, Long accountId) {
+        if(accountHolderRepository.findById(userId).isPresent()){
+            if(accountRepository.findById(accountId).isPresent()&& accountRepository.findById(accountId).get().getPrimaryOwner().getId() == userId){
+                accountRepository.deleteById(accountId);
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This account is not from this user");
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
+
 
     }
 }

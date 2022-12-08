@@ -1,14 +1,10 @@
 package com.banking.bankingSystem;
 import com.banking.bankingSystem.modules.DTO.AccountDTO;
-import com.banking.bankingSystem.modules.accounts.Account;
-import com.banking.bankingSystem.modules.accounts.CreditCard;
-import com.banking.bankingSystem.modules.accounts.Savings;
 import com.banking.bankingSystem.modules.users.AccountHolder;
 import com.banking.bankingSystem.modules.users.Address;
 import com.banking.bankingSystem.modules.users.Admin;
 import com.banking.bankingSystem.modules.users.Role;
 import com.banking.bankingSystem.repositories.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,22 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import static org.hamcrest.Matchers.is;
+import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,6 +111,48 @@ public class AdminTest {
         assertTrue(result.getResponse().getContentAsString().contains("creditLimit"));
         assertFalse(result.getResponse().getContentAsString().contains("minimumBalance"));
     }
+
+    @Test
+    public void create_userId_not_found_in_createChecking_account() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
+        AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
+        String body = objectMapper.writeValueAsString(account);
+        MvcResult result = mockMvc.perform(post("/create-checking").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
+                .andReturn();
+    }
+    @Test
+    public void create_userId_not_found_in_createSavings_account() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
+        AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
+        String body = objectMapper.writeValueAsString(account);
+        MvcResult result = mockMvc.perform(post("/create-savings").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
+                .andReturn();
+    }
+    @Test
+    public void create_userId_not_found_in_createCreditCard_account() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
+        AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
+        String body = objectMapper.writeValueAsString(account);
+        MvcResult result = mockMvc.perform(post("/create-creditCard").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
+                .andReturn();
+    }
+
+    @Test
+    public void create_thirdParty_user() throws Exception {
+
+    }
+
+
+
 
 
 

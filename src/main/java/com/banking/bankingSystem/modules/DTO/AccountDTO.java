@@ -1,19 +1,17 @@
 package com.banking.bankingSystem.modules.DTO;
-
 import java.math.BigDecimal;
 
 public class AccountDTO {
-
     private Long primaryOwnerId;
     private Long secondaryOwnerId;
     private BigDecimal balance;
     private String secretKey;
 
     public AccountDTO(Long primaryOwnerId, Long secondaryOwnerId, BigDecimal balance, String secretKey) {
-        this.primaryOwnerId = primaryOwnerId;
-        this.secondaryOwnerId = secondaryOwnerId;
-        this.balance = balance;
-        this.secretKey = secretKey;
+        setPrimaryOwnerId(primaryOwnerId);
+        setSecondaryOwnerId(secondaryOwnerId);
+        setBalance(balance);
+        setSecretKey(secretKey);
     }
 
     public Long getPrimaryOwnerId() {

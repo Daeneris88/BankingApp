@@ -16,6 +16,7 @@ public class Transfer {
     private Long sendingId;
     private Long receivingId;
     private String recipientName;
+    private String secretKey;
 
     public Transfer() {    }
     public Transfer(BigDecimal amount, Long sendingId, Long receivingId, String recipientName) {
@@ -23,6 +24,19 @@ public class Transfer {
         setSendingId(sendingId);
         setReceivingId(receivingId);
         setRecipientName(recipientName);
+    }
+    public Transfer(BigDecimal amount, Long sendingId, String secretKey) {
+        setAmount(amount);
+        setSecretKey(secretKey);
+        setSendingId(sendingId);
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
     }
 
     public Long getId() {
