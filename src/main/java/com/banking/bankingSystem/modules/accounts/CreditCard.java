@@ -27,6 +27,7 @@ public class CreditCard extends Account {
         super(balance, null, primaryOwner);
         setCreditLimit(creditLimit);
         setInterestRate(interestRate);
+        setInterestDate(LocalDate.now());
     }
 
     public CreditCard(BigDecimal interestRate) {

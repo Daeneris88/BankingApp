@@ -63,7 +63,7 @@ public class AccountHolderTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
-    @Test
+    /*@Test
     void get_account_balance() throws Exception {
         Address address = new Address("C. Pelayo", "Barcelona", "08045");
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
@@ -78,7 +78,7 @@ public class AccountHolderTest {
 
         MvcResult result = (MvcResult) mockMvc.perform(get("/account-balance").param("accountId", "2").principal(principal)).andExpect(status().isOk()).andExpect((ResultMatcher) jsonPath("$.balance", is(2001.00)));
 
-    }
+    }*/
 
 
 }

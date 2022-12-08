@@ -20,6 +20,7 @@ public class Savings extends Account {
 
     public Savings(BigDecimal balance, String secretKey, User primaryOwner) {
         super(balance, secretKey, primaryOwner);
+        setInterestDate(LocalDate.now());
     }
 
     public BigDecimal getPenaltyFee() {

@@ -3,12 +3,10 @@ import com.banking.bankingSystem.modules.Transfer;
 import com.banking.bankingSystem.services.ThirdPartyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import java.math.BigDecimal;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+@RestController
 public class ThirdPartyController {
     @Autowired
     ThirdPartyService thirdPartyService;

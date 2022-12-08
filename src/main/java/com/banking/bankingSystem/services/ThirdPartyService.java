@@ -2,6 +2,8 @@ package com.banking.bankingSystem.services;
 import com.banking.bankingSystem.enums.AccountStatus;
 import com.banking.bankingSystem.modules.Transfer;
 import com.banking.bankingSystem.modules.accounts.Account;
+import com.banking.bankingSystem.modules.accounts.Checking;
+import com.banking.bankingSystem.modules.accounts.Savings;
 import com.banking.bankingSystem.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +24,24 @@ public class ThirdPartyService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Account frozen");
             else{
                 Account receivingAccount = accountRepository.findById(accountRepository.findBySecretKey(transfer.getSecretKey()).getId()).get();
-                sendingAccount.setBalance(sendingAccount.getBalance().subtract(transfer.getAmount()));
-                accountRepository.save(sendingAccount);
+                if(sendingAccount instanceof Checking){
+                    BigDecimal minBalance = ((Checking) sendingAccount).getMinimumBalance();
+                    if (minBalance.compareTo(sendingAccount.getBalance().subtract(transfer.getAmount())) > 0){
+                        sendingAccount.setBalance(sendingAccount.getBalance().subtract(transfer.getAmount()).subtract(((Checking) sendingAccount).getPenaltyFee()));
+                        accountRepository.save(sendingAccount);
+                    }
+                }
+                if(sendingAccount instanceof Savings){
+                    BigDecimal minBalance = ((Checking) sendingAccount).getMinimumBalance();
+                    if (minBalance.compareTo(sendingAccount.getBalance().subtract(transfer.getAmount())) > 0){
+                        sendingAccount.setBalance(sendingAccount.getBalance().subtract(transfer.getAmount()).subtract(((Savings) sendingAccount).getPenaltyFee()));
+                        accountRepository.save(sendingAccount);
+                    }
+                }
+                else{
+                    sendingAccount.setBalance(sendingAccount.getBalance().subtract(transfer.getAmount()));
+                    accountRepository.save(sendingAccount);
+                }
                 receivingAccount.setBalance(receivingAccount.getBalance().add(transfer.getAmount()));
                 accountRepository.save(receivingAccount);
                 return transfer.getAmount();

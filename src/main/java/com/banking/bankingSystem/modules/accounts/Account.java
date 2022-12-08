@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -33,7 +32,6 @@ public class Account {
         setPrimaryOwner(primaryOwner);
         setCreationDate(LocalDate.now());
     }
-
 
     public Long getId() {
         return id;

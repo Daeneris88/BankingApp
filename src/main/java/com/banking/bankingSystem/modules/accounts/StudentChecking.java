@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 @Entity
 public class StudentChecking extends Account {
     public StudentChecking() {    }
-
     public StudentChecking(BigDecimal balance, String secretKey, User primaryOwner) {
         super(balance, secretKey, primaryOwner);
     }

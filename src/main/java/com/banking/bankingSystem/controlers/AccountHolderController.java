@@ -5,11 +5,10 @@ import com.banking.bankingSystem.services.AccountHolderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
-@Controller
+@RestController
 public class AccountHolderController {
     @Autowired
     AccountHolderService accountHolderService;

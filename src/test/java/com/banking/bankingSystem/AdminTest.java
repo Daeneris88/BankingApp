@@ -1,9 +1,8 @@
 package com.banking.bankingSystem;
 import com.banking.bankingSystem.modules.DTO.AccountDTO;
-import com.banking.bankingSystem.modules.users.AccountHolder;
-import com.banking.bankingSystem.modules.users.Address;
-import com.banking.bankingSystem.modules.users.Admin;
-import com.banking.bankingSystem.modules.users.Role;
+import com.banking.bankingSystem.modules.accounts.CreditCard;
+import com.banking.bankingSystem.modules.accounts.Savings;
+import com.banking.bankingSystem.modules.users.*;
 import com.banking.bankingSystem.repositories.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,6 +118,7 @@ public class AdminTest {
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
         AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
         String body = objectMapper.writeValueAsString(account);
+
         MvcResult result = mockMvc.perform(post("/create-checking").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
@@ -129,6 +130,7 @@ public class AdminTest {
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
         AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
         String body = objectMapper.writeValueAsString(account);
+
         MvcResult result = mockMvc.perform(post("/create-savings").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
@@ -140,6 +142,7 @@ public class AdminTest {
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(2015, 8, 12)));
         AccountDTO account = new AccountDTO(60L, null, new BigDecimal(2000), "secretKey");
         String body = objectMapper.writeValueAsString(account);
+
         MvcResult result = mockMvc.perform(post("/create-creditCard").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result1 -> assertEquals("404 NOT_FOUND \"User Id not found\"", Objects.requireNonNull(result1.getResolvedException()).getMessage()))
@@ -148,6 +151,22 @@ public class AdminTest {
 
     @Test
     public void create_thirdParty_user() throws Exception {
+        ThirdParty user = new ThirdParty("abcdefg");
+        String body = objectMapper.writeValueAsString(user);
+        MvcResult result = (MvcResult) mockMvc.perform(post("/create-thirdParty")
+                .content(body).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("abcdefg"));
+    }
+    @Test
+    public void change_balance_user() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        Admin admin = adminRepository.save(new Admin("Admin", "1234"));
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
+        accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+        BigDecimal amount = BigDecimal.valueOf(200);
+        //MvcResult result = (MvcResult) mockMvc.perform(patch("/balance/"+ accountHolder.getId()).header("secretKey", "secretKey")
+            //   .param("",amount)).andExpect(status().isCreated()).andReturn();
 
     }
 
