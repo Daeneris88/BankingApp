@@ -1,6 +1,4 @@
 package com.banking.bankingSystem;
-
-import com.banking.bankingSystem.modules.accounts.Account;
 import com.banking.bankingSystem.modules.accounts.CreditCard;
 import com.banking.bankingSystem.modules.accounts.Savings;
 import com.banking.bankingSystem.modules.users.AccountHolder;
@@ -33,8 +31,6 @@ public class BankingSystemApplication implements CommandLineRunner {
 	AccountRepository accountRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
-
-
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankingSystemApplication.class, args);

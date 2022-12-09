@@ -2,12 +2,10 @@ package com.banking.bankingSystem.services;
 import com.banking.bankingSystem.modules.DTO.AccountDTO;
 import com.banking.bankingSystem.modules.accounts.*;
 import com.banking.bankingSystem.modules.users.*;
-import com.banking.bankingSystem.repositories.AccountHolderRepository;
-import com.banking.bankingSystem.repositories.AccountRepository;
-import com.banking.bankingSystem.repositories.RoleRepository;
-import com.banking.bankingSystem.repositories.ThirdPartyRepository;
+import com.banking.bankingSystem.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
@@ -26,6 +24,10 @@ public class AdminService {
     AccountHolderRepository accountHolderRepository;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    AdminRepository adminRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     public ThirdParty createThirdParty(ThirdParty user) {
         return thirdPartyRepository.save(user);
@@ -101,5 +103,20 @@ public class AdminService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
 
 
+    }
+
+    public Admin createAdmin(User user) {
+        Admin admin = new Admin(user.getName(), passwordEncoder.encode(user.getPassword()));
+        adminRepository.save(admin);
+        Role role = roleRepository.save(new Role("ADMIN", admin));
+        return admin;
+    }
+
+    public AccountHolder createAccountHolder(AccountHolder user) {
+        AccountHolder accountHolder = new AccountHolder(user.getName(), passwordEncoder.encode(user.getPassword()),
+                user.getPrimaryAddress(), user.getMailAddress(), user.getDateOfBirth());
+        accountHolderRepository.save(accountHolder);
+        Role role = roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder));
+        return accountHolder;
     }
 }

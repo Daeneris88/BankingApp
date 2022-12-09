@@ -26,12 +26,13 @@ public class SecurityConfiguration {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.httpBasic();
-
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/create-thirdParty").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/create-creditCard").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/create-savings").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/create-checking").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/create-admin").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/create-accountHolder").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/balance/{userId}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/account/{id}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/account-balance").hasRole("ACCOUNT_HOLDER")

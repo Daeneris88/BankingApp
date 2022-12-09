@@ -1,7 +1,10 @@
 package com.banking.bankingSystem.controlers;
 import com.banking.bankingSystem.modules.DTO.AccountDTO;
 import com.banking.bankingSystem.modules.accounts.Account;
+import com.banking.bankingSystem.modules.users.AccountHolder;
+import com.banking.bankingSystem.modules.users.Admin;
 import com.banking.bankingSystem.modules.users.ThirdParty;
+import com.banking.bankingSystem.modules.users.User;
 import com.banking.bankingSystem.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,17 @@ import java.math.BigDecimal;
 public class AdminController {
     @Autowired
     AdminService adminService;
+
+    @PostMapping("/create-admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Admin createAdmin(@RequestBody User user){
+        return adminService.createAdmin(user);
+    }
+    @PostMapping("/create-accountHolder")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountHolder createAccountHolder(@RequestBody AccountHolder user){
+        return adminService.createAccountHolder(user);
+    }
 
     @PostMapping("/create-checking")
     @ResponseStatus(HttpStatus.CREATED)
