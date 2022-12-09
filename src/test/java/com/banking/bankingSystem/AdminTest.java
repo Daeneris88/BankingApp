@@ -199,16 +199,16 @@ public class AdminTest {
     public void delete_account() throws Exception {
         Address address = new Address("C. Pelayo", "Barcelona", "08045");
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Pala", passwordEncoder.encode("1234"), address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
-        Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey123", accountHolder));
         CreditCard creditCard = accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+
         mockMvc.perform(delete("/account/" + accountHolder.getId()).param("accountId", creditCard.getId().toString())).andExpect(status().isOk());
     }
     @Test
     public void delete_account_id_not_found_error() throws Exception {
         Address address = new Address("C. Pelayo", "Barcelona", "08045");
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Pala", passwordEncoder.encode("1234"), address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
-        Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey123", accountHolder));
         CreditCard creditCard = accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+
         MvcResult result = mockMvc.perform(delete("/account/100" ).param("accountId", creditCard.getId().toString())).andExpect(status().isNotFound()).andReturn();
         assertEquals("404 NOT_FOUND \"User Id not found\"", result.getResolvedException().getMessage());
     }

@@ -27,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,18 +69,58 @@ public class AccountHolderTest {
         Address address = new Address("C. Pelayo", "Barcelona", "08045");
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Super", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
         Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
-        CreditCard creditCard = accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
-        accountHolder.getPrimaryAccountList().add(savings);
-        accountHolder.getPrimaryAccountList().add(creditCard);
-        Role role = roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder)) ;
-
+        roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder)) ;
         UsernamePasswordAuthenticationToken principal = this.getPrincipal("Super");
         SecurityContextHolder.getContext().setAuthentication(principal);
 
-        MvcResult result = (MvcResult) mockMvc.perform(get("/account-balance").param("accountId", "2").principal(principal)).andExpect(status().isOk()).andExpect((ResultMatcher) jsonPath("$.balance", is(2001.00)));
-
-        new BigDecimal(result.getResponse().getContentAsString());
+        MvcResult result = mockMvc.perform(get("/account-balance").param("accountId", savings.getId().toString()).principal(principal))
+                .andExpect(status().isOk()).andReturn();
+        assertEquals("2000.00", result.getResponse().getContentAsString());
     }
+
+    @Test
+    void get_account_balance_account_not_related_to_accountHolder() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Super", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        AccountHolder accountHolder2 = accountHolderRepository.save(new AccountHolder("jaja", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        CreditCard creditCard = accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder2));
+        roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder)) ;
+        UsernamePasswordAuthenticationToken principal = this.getPrincipal("Super");
+        SecurityContextHolder.getContext().setAuthentication(principal);
+
+        MvcResult result = mockMvc.perform(get("/account-balance").param("accountId", creditCard.getId().toString()).principal(principal))
+                .andExpect(status().isNotFound()).andReturn();
+        assertEquals("404 NOT_FOUND \"This account is not related to this Account Holder\"", result.getResolvedException().getMessage());
+    }
+    @Test
+    void get_account_balance_account_id_not_found() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Super", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
+        accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+        roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder)) ;
+        UsernamePasswordAuthenticationToken principal = this.getPrincipal("Super");
+        SecurityContextHolder.getContext().setAuthentication(principal);
+
+        MvcResult result = mockMvc.perform(get("/account-balance").param("accountId", "123456789").principal(principal))
+                .andExpect(status().isNotFound()).andReturn();
+        assertEquals("404 NOT_FOUND \"Account Id not found\"", result.getResolvedException().getMessage());
+    }
+
+    /* Este test con el security implementado no tiene sentido
+    @Test
+    void get_account_balance_user_name_not_found() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Super", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        CreditCard creditCard = accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+        roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder)) ;
+        UsernamePasswordAuthenticationToken principal = this.getPrincipal("Super");
+        SecurityContextHolder.getContext().setAuthentication(principal);
+
+        MvcResult result = mockMvc.perform(get("/account-balance").param("accountId", creditCard.getId().toString()).principal(principal))
+                .andExpect(status().isNotFound()).andReturn();
+        assertEquals("404 NOT_FOUND \"User name not found\"", result.getResolvedException().getMessage());
+    }*/
 
 
 }

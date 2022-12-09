@@ -23,7 +23,7 @@ public class AccountHolderService {
     AccountHolderRepository accountHolderRepository;
     @Autowired
     AccountRepository accountRepository;
-
+    // --- Tested only see the balance not the incrementing rate ---
     public BigDecimal getBalance(Long id, String userName){
         if(accountHolderRepository.findByName(userName).isPresent()){
             AccountHolder accountHolder = accountHolderRepository.findByName(userName).get();
@@ -63,9 +63,9 @@ public class AccountHolderService {
                 }
                 else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This account is not related to this Account Holder");
             }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Id not found");
+            else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Id not found");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User name not found");
+        else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User name not found");
     }
 
     public BigDecimal transfer(Transfer transfer, String userName) {

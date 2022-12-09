@@ -6,7 +6,6 @@ import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
 @Entity
 public class CreditCard extends Account {
     @DecimalMin(value = "100.00")
