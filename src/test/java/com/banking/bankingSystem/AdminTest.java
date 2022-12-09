@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,8 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 public class AdminTest {
-    @Autowired
-    WebApplicationContext context;
+    @Autowired    WebApplicationContext context;
     @Autowired    private AccountRepository accountRepository;
     @Autowired    private AccountHolderRepository accountHolderRepository;
     @Autowired    protected AdminRepository adminRepository;
@@ -156,14 +154,45 @@ public class AdminTest {
     @Test
     public void change_balance_user() throws Exception {
         Address address = new Address("C. Pelayo", "Barcelona", "08045");
-        Admin admin = adminRepository.save(new Admin("Admin", "1234"));
         AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
-        accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
+        Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
         accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
         BigDecimal amount = BigDecimal.valueOf(200);
-        //MvcResult result = (MvcResult) mockMvc.perform(patch("/balance/"+ accountHolder.getId()).header("secretKey", "secretKey")
-            //   .param("",amount)).andExpect(status().isCreated()).andReturn();
+        BigDecimal subtract = BigDecimal.valueOf(-500);
 
+        MvcResult result = mockMvc.perform(patch("/balance/"+ accountHolder.getId()).header("secretKey", "secretKey")
+                .param("bigDecimal",amount.toString())).andExpect(status().isOk()).andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains(accountRepository.findById(savings.getId()).get().getBalance().toString()));
+
+        MvcResult result1 = mockMvc.perform(patch("/balance/"+ accountHolder.getId()).header("secretKey", "secretKey")
+                .param("bigDecimal",subtract.toString())).andExpect(status().isOk()).andReturn();
+        assertTrue(result1.getResponse().getContentAsString().contains(accountRepository.findById(savings.getId()).get().getBalance().toString()));
+    }
+
+    @Test
+    public void change_balance_user_account_secretKey_not_found() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
+        accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+        BigDecimal amount = BigDecimal.valueOf(200);
+
+        MvcResult result = mockMvc.perform(patch("/balance/"+ accountHolder.getId()).header("secretKey", "123456789")
+                .param("bigDecimal",amount.toString())).andExpect(status().isNotFound()).andReturn();
+        assertEquals("404 NOT_FOUND \"Account secretKey not found\"", result.getResolvedException().getMessage());
+    }
+
+    @Test
+    public void change_balance_user_account_id_not_found() throws Exception {
+        Address address = new Address("C. Pelayo", "Barcelona", "08045");
+        AccountHolder accountHolder = accountHolderRepository.save(new AccountHolder("Lala", "1234", address, "abc@abc.com", LocalDate.of(1988, 8, 12)));
+        Savings savings = accountRepository.save( new Savings(BigDecimal.valueOf(2000.00), "secretKey", accountHolder));
+        accountRepository.save( new CreditCard(BigDecimal.valueOf(2001.00), accountHolder));
+        BigDecimal amount = BigDecimal.valueOf(200);
+
+        MvcResult result = mockMvc.perform(patch("/balance/123456789").header("secretKey", "secretKey")
+                .param("bigDecimal",amount.toString())).andExpect(status().isNotFound()).andReturn();
+        assertEquals("404 NOT_FOUND \"User Id not found\"", result.getResolvedException().getMessage());
     }
 
     @Test
@@ -201,11 +230,12 @@ public class AdminTest {
         MvcResult result = mockMvc.perform(post("/create-admin").content(body).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
 
     }
-
-
-
-
-
-
+    @Test
+    public void create_accountHolder() throws Exception {
+        Address address = new Address("C. Montanya", "Barcelona", "08045");
+        AccountHolder user = new AccountHolder("admin6", "12345", address, "abc@abc.com", LocalDate.of(2000, 12, 20));
+        String body = objectMapper.writeValueAsString(user);
+        MvcResult result = mockMvc.perform(post("/create-admin").content(body).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+    }
 
 }

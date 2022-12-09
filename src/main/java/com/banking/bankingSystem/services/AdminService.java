@@ -29,14 +29,16 @@ public class AdminService {
         return thirdPartyRepository.save(user);
     }
 
+    // ---- Tested ---
     public Account accountBalanceUpdate(Long userId, String secretKey, BigDecimal bigDecimal) {
         if (accountHolderRepository.findById(userId).isPresent()) {
             AccountHolder accountHolder = accountHolderRepository.findById(userId).get();
             Account account = accountCheck(accountHolder.getPrimaryAccountList(), secretKey, bigDecimal, accountHolder);
             if (account == null) account = accountCheck(accountHolder.getSecondaryAccountList(), secretKey, bigDecimal, accountHolder);
-            if (account == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Id not found");
+            if (account == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account secretKey not found");
+            else return accountRepository.save(account);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
+        else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
     // ---- Tested ---
     public Account createChecking(AccountDTO accountDTO) {
