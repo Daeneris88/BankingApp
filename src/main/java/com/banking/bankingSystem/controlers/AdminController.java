@@ -57,9 +57,9 @@ public class AdminController {
        return adminService.accountBalanceUpdate(userId, secretKey, bigDecimal);
     }
 
-    @DeleteMapping("account/{id}")
+    @DeleteMapping("/account/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteAccount(@PathVariable Long userId, @RequestHeader Long accountId){
+    public void deleteAccount(@PathVariable Long userId, @RequestParam Long accountId){
         adminService.deleteAccount(userId, accountId);
     }
 }

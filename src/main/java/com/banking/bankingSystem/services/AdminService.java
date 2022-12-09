@@ -23,7 +23,9 @@ public class AdminService {
     @Autowired    AdminRepository adminRepository;
     @Autowired    PasswordEncoder passwordEncoder;
 
+    // ---- Tested ---
     public ThirdParty createThirdParty(ThirdParty user) {
+        user.setHashedKey(passwordEncoder.encode(user.getHashedKey()));
         return thirdPartyRepository.save(user);
     }
 
@@ -36,7 +38,7 @@ public class AdminService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
-
+    // ---- Tested ---
     public Account createChecking(AccountDTO accountDTO) {
         if(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
             AccountHolder user = accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get();
@@ -46,7 +48,7 @@ public class AdminService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
-
+    // ---- Tested ---
     public Account createCreditCard(AccountDTO account) {
         if(accountHolderRepository.findById(account.getPrimaryOwnerId()).isPresent()) {
             AccountHolder user = accountHolderRepository.findById(account.getPrimaryOwnerId()).get();
@@ -54,7 +56,7 @@ public class AdminService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
-
+    // ---- Tested ---
     public Account createSavings(AccountDTO account) {
         if(accountHolderRepository.findById(account.getPrimaryOwnerId()).isPresent()) {
             AccountHolder user = accountHolderRepository.findById(account.getPrimaryOwnerId()).get();
@@ -62,24 +64,24 @@ public class AdminService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
-
+    // ---- Tested ---
     public void deleteAccount(Long userId, Long accountId) {
         if(accountHolderRepository.findById(userId).isPresent()){
-            if(accountRepository.findById(accountId).isPresent()&& accountRepository.findById(accountId).get().getPrimaryOwner().getId() == userId){
+            if(accountRepository.findById(accountId).isPresent() && Objects.equals((accountRepository.findById(accountId).get()).getPrimaryOwner().getId(), userId)){
                 accountRepository.deleteById(accountId);
             }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This account is not from this user");
+            else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This account is not from this user");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
+        else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
-
+    // ---- Tested ---
     public Admin createAdmin(Admin user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         adminRepository.save(user);
         roleRepository.save(new Role("ADMIN", user));
         return user;
     }
-
+    // ---- Tested ---
     public AccountHolder createAccountHolder(AccountHolder user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         accountHolderRepository.save(user);
