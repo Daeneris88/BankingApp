@@ -18,7 +18,7 @@ public class AdminController {
 
     @PostMapping("/create-admin")
     @ResponseStatus(HttpStatus.CREATED)
-    public Admin createAdmin(@RequestBody User user){
+    public Admin createAdmin(@RequestBody Admin user){
         return adminService.createAdmin(user);
     }
     @PostMapping("/create-accountHolder")

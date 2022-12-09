@@ -16,18 +16,12 @@ import java.util.Objects;
 
 @Service
 public class AdminService {
-    @Autowired
-    ThirdPartyRepository thirdPartyRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    AccountHolderRepository accountHolderRepository;
-    @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    AdminRepository adminRepository;
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    @Autowired    ThirdPartyRepository thirdPartyRepository;
+    @Autowired    RoleRepository roleRepository;
+    @Autowired    AccountHolderRepository accountHolderRepository;
+    @Autowired    AccountRepository accountRepository;
+    @Autowired    AdminRepository adminRepository;
+    @Autowired    PasswordEncoder passwordEncoder;
 
     public ThirdParty createThirdParty(ThirdParty user) {
         return thirdPartyRepository.save(user);
@@ -36,30 +30,9 @@ public class AdminService {
     public Account accountBalanceUpdate(Long userId, String secretKey, BigDecimal bigDecimal) {
         if (accountHolderRepository.findById(userId).isPresent()) {
             AccountHolder accountHolder = accountHolderRepository.findById(userId).get();
-            boolean isPresent = false;
-            List<Account> primaryAccountList = accountHolder.getPrimaryAccountList();
-            List<Account> secondaryAccountList = accountHolder.getSecondaryAccountList();
-            for (int i = 0; i < primaryAccountList.size(); i++) {
-                Account account = primaryAccountList.get(i);
-                if (Objects.equals(account.getSecretKey(), secretKey)) {
-                    account.setBalance(account.getBalance().add(bigDecimal));
-                    accountHolderRepository.save(accountHolder);
-                    isPresent = true;
-                    return account;
-                }
-            }
-            if (!isPresent) {
-                for (int i = 0; i < secondaryAccountList.size(); i++) {
-                    Account account = secondaryAccountList.get(i);
-                    if (Objects.equals(account.getSecretKey(), secretKey)) {
-                        account.setBalance(account.getBalance().add(bigDecimal));
-                        accountHolderRepository.save(accountHolder);
-                        isPresent = true;
-                        return account;
-                    }
-                }
-            }
-            if (!isPresent) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Id not found");
+            Account account = accountCheck(accountHolder.getPrimaryAccountList(), secretKey, bigDecimal, accountHolder);
+            if (account == null) account = accountCheck(accountHolder.getSecondaryAccountList(), secretKey, bigDecimal, accountHolder);
+            if (account == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account Id not found");
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
@@ -68,11 +41,8 @@ public class AdminService {
         if(accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).isPresent()) {
             AccountHolder user = accountHolderRepository.findById(accountDTO.getPrimaryOwnerId()).get();
             Period intervalPeriod = Period.between(user.getDateOfBirth(), LocalDate.now());
-            if (intervalPeriod.getYears() < 24) {
-                return accountRepository.save( new StudentChecking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
-            } else {
-                return accountRepository.save(new Checking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
-            }
+            if (intervalPeriod.getYears() < 24) return accountRepository.save( new StudentChecking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
+            else return accountRepository.save(new Checking(accountDTO.getBalance(), accountDTO.getSecretKey(), user));
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
     }
@@ -101,22 +71,31 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This account is not from this user");
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Id not found");
-
-
     }
 
-    public Admin createAdmin(User user) {
-        Admin admin = new Admin(user.getName(), passwordEncoder.encode(user.getPassword()));
-        adminRepository.save(admin);
-        Role role = roleRepository.save(new Role("ADMIN", admin));
-        return admin;
+    public Admin createAdmin(Admin user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        adminRepository.save(user);
+        roleRepository.save(new Role("ADMIN", user));
+        return user;
     }
 
     public AccountHolder createAccountHolder(AccountHolder user) {
-        AccountHolder accountHolder = new AccountHolder(user.getName(), passwordEncoder.encode(user.getPassword()),
-                user.getPrimaryAddress(), user.getMailAddress(), user.getDateOfBirth());
-        accountHolderRepository.save(accountHolder);
-        Role role = roleRepository.save(new Role("ACCOUNT_HOLDER", accountHolder));
-        return accountHolder;
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        accountHolderRepository.save(user);
+        roleRepository.save(new Role("ACCOUNT_HOLDER", user));
+        return user;
+    }
+
+    private Account accountCheck(List<Account> accountList, String secretKey, BigDecimal bigDecimal, AccountHolder accountHolder){
+        for (int i = 0; i < accountList.size(); i++) {
+            Account tempAccount = accountList.get(i);
+            if (Objects.equals(tempAccount.getSecretKey(), secretKey)) {
+                tempAccount.setBalance(tempAccount.getBalance().add(bigDecimal));
+                accountHolderRepository.save(accountHolder);
+                return tempAccount;
+            }
+        }
+        return null;
     }
 }
